@@ -1,0 +1,46 @@
+{
+  "entities": {
+    "User": {
+      "title": "User Profile",
+      "description": "User account info and target metrics",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "email": { "type": "string" },
+        "targetBMI": { "type": "number" },
+        "initialWeight": { "type": "number" }
+      },
+      "required": ["id", "name", "email"]
+    },
+    "WeightEntry": {
+      "title": "Weight Entry",
+      "description": "A single logged entry of weight and BMI",
+      "type": "object",
+      "properties": {
+        "Nome": { "type": "string" },
+        "data": { "type": "string" },
+        "peso": { "type": "number" },
+        "IMC": { "type": "number" },
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "weight": { "type": "number" },
+        "height": { "type": "number" },
+        "bmi": { "type": "number" },
+        "date": { "type": "string" },
+        "createdAt": { "type": "number" }
+      },
+      "required": ["Nome", "data", "peso", "IMC", "id", "userId"]
+    }
+  },
+  "firestore": {
+    "dados/{userId}": {
+      "schema": "User",
+      "description": "User profile document containing metadata and settings"
+    },
+    "dados/{userId}/lista/{entryId}": {
+      "schema": "WeightEntry",
+      "description": "Subcollection storing historical weight and BMI logs for the user"
+    }
+  }
+}

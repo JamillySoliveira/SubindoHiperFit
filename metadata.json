@@ -1,0 +1,6 @@
+{
+  "name": "HiperFit",
+  "description": "Professional-grade fitness tracking with BMI calculations, weight history, goal progress tracking, and intuitive dashboards.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

@@ -1,0 +1,62 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // 1. Global safety net (default deny)
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Hardened helper functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    // Entity validation blueprints
+    function isValidUser(data) {
+      return data.keys().hasAll(['id', 'name', 'email'])
+        && data.id is string && data.id.size() <= 128
+        && data.name is string && data.name.size() <= 128
+        && data.email is string && data.email.size() <= 128;
+    }
+
+    function isValidEntry(data) {
+      return data.keys().hasAll(['Nome', 'data', 'peso', 'IMC'])
+        && data.Nome is string && data.Nome.size() <= 128
+        && data.data is string && data.data.size() == 10
+        && data.peso is number && data.peso > 0 && data.peso <= 500
+        && data.IMC is number && data.IMC > 0 && data.IMC <= 100;
+    }
+
+    // dados/{userId} documents (profiles)
+    match /dados/{userId} {
+      allow get: if isOwner(userId);
+      allow create, update: if isOwner(userId) && isValidId(userId);
+      allow delete: if false; // Profiles shouldn't be deleted easily
+
+      // dados/{userId}/lista/{entryId} (subcollection)
+      match /lista/{entryId} {
+        allow get, list: if isOwner(userId);
+        allow create: if isOwner(userId) && isValidId(entryId) && isValidEntry(incoming());
+        allow update: if isOwner(userId) && isValidId(entryId) && isValidEntry(incoming());
+        allow delete: if isOwner(userId) && isValidId(entryId);
+      }
+    }
+  }
+}
